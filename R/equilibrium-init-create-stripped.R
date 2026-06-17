@@ -302,6 +302,10 @@ equilibrium_init_create_stripped <- function(age_vector, het_brackets,
   inc05 <- sum(clin_inc[1:age05,])/sum(den[1:age59])
   inc_flex <- sum(clin_inc[age0:age1,])/sum(den[age0:age1])
 
+  sev_inc <- mpl$sev_prob * clin_inc
+  sev_inc <- array(sev_inc, c(na, nh))
+  sev_inc05 <- sum(sev_inc[1:age05,])/sum(den[1:age59])
+
 
   ## collate init
   res <- list(init_S = S_eq, init_T = T_eq, init_D = D_eq, init_A = A_eq, init_U = U_eq,
@@ -319,6 +323,7 @@ equilibrium_init_create_stripped <- function(age_vector, het_brackets,
               age_flex_length = age_flex_length,
               pi = pi,
               prev05 = prev,inc = inc, inc05=inc05,
+              sev_inc = sum(sev_inc), sev_inc05 = sev_inc05,
               prev_flex = prev_flex, inc_flex = inc_flex,
               prev2.10 = prev2.10,
               age = age_vector*mpl$DY, ft = ft,

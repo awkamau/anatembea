@@ -26,6 +26,7 @@ rT <- user() # rate of treatment working: T -> P
 rD <- user() #  rate from D -> A
 rU <- user() # rate of clearance of subpatent infection U -> S
 rP <- user() # rate at which prophylaxis wears off P -> S
+sev_prob <- user()  # Probability that clinical case becomes severe
 
 # S - SUSCEPTIBLE
 init_S[,] <- user()
@@ -103,6 +104,12 @@ output(clin_inc)<-clin_inc
 output(phi)<-phi
 # output(FOI)<-FOI
 output(Y)<-Y
+
+# Severe incidence calculation
+dim(sev_inc) <- c(na,nh)
+sev_inc[1:na, 1:nh] <- sev_prob * clin_inc[i,j]
+output(sev_inc) <- sev_inc
+
 # Sum compartments over all age, heterogeneity and intervention categories
 Sh <- sum(S[,])
 Th <- sum(T[,])
@@ -552,6 +559,19 @@ clin_inc0to14[1:age14,] <- clin_inc[i,j]
 output(inc014) <- sum(clin_inc0to14)/sum(den[1:age14])
 
 output(inc) <- sum(clin_inc[,])
+
+# Severe incidence for under-5s
+dim(sev_inc0to5) <- c(age05,nh)
+sev_inc0to5[1:age05,] <- sev_inc[i,j]
+output(sev_inc05) <- sum(sev_inc0to5)/sum(den[1:age05])
+
+# Compute clinical incidence for 0-14 age bracket
+dim(sev_inc0to14) <- c(age14,nh)
+sev_inc0to14[1:age14,] <- sev_inc[i,j]
+output(sev_inc014) <- sum(sev_inc0to14)/sum(den[1:age14])
+
+# Total severe incidence
+output(sev_inc_all) <- sum(sev_inc[,])
 
 
 # Param checking outputs
