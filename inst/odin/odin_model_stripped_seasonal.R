@@ -410,6 +410,7 @@ dim(den) <- na
 # index of the age vector above 59 months
 age59 <- user(integer=TRUE)
 age05 <- user(integer=TRUE)
+age14 <- user(integer=TRUE)
 age_flex_length <- user(integer=TRUE)
 age0 <- user(integer=TRUE)
 age1 <- user(integer=TRUE)
@@ -433,6 +434,11 @@ clin_inc0tounder5[1:age59,] <- clin_inc[i,j]
 dim(clin_inc0to5) <- c(age05,nh)
 clin_inc0to5[1:age05,] <- clin_inc[i,j]
 output(inc05) <- sum(clin_inc0to5)/sum(den[1:age05])
+
+# Compute clinical incidence for 0-14 age bracket
+dim(clin_inc0to14) <- c(age14,nh)
+clin_inc0to14[1:age14,] <- clin_inc[i,j]
+output(inc014) <- sum(clin_inc0to14)/sum(den[1:age14])
 
 output(inc) <- sum(clin_inc[,])
 

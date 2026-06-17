@@ -545,6 +545,14 @@ dim(clin_inc0to5) <- c(age05,nh)
 clin_inc0to5[1:age05,] <- clin_inc[i,j]
 output(inc05) <- sum(clin_inc0to5)/sum(den[1:age05])
 
+# Add age index for 14 years
+age14 <- user(integer=TRUE)
+
+# Compute clinical incidence for 0-14 age bracket
+dim(clin_inc0to14) <- c(age14,nh)
+clin_inc0to14[1:age14,] <- clin_inc[i,j]
+output(inc014) <- sum(clin_inc0to14)/sum(den[1:age14])
+
 output(inc) <- sum(clin_inc[,])
 
 
