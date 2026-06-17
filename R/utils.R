@@ -266,6 +266,7 @@ transform_init <- function(final_state = NULL){
        age = f$age_init[last,],
        age0 = f$age0_init[last],
        age1 = f$age1_init[last],
+       age14 = f$age14_init[last],
        age_flex_length = f$age_flex_length_init[last],
        ft = f$ft_init[last],
        age20l = f$age20l_init[last],
