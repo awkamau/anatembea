@@ -184,6 +184,50 @@ data_process <- function(data_raw = NULL, start_pf_time = NULL, check_flexibilit
 }
 
 #------------------------------------------------
+#' Process raw data for use in pMCMC
+#'
+#' \code{data_process_annual} Transform data file
+#'
+#' @param data_raw Data input from user
+#'   Default = NULL
+#'@param start_pf_time Amount of time before first observation to start particle filter
+#'@param check_flexibility Save pre-observation run
+#' @export
+#'
+data_process_annual <- function(data_raw = NULL, start_pf_time = NULL, check_flexibility){
+  ## Modify dates from data
+  start_obs <- min(as.Date(paste0(data_raw$year, '-07-01'))) #Mid-year date of first observation (in Date format)
+  time_origin <- zoo::as.Date(paste0(lubridate::year(start_obs)-1,'-07-01')) #July 1 of year before observation (in Date format)
+  data_raw_time <- data_raw
+  data_raw_time$date <- as.Date(paste0(data_raw$year, '-07-01')) #Convert annual year to mid-year date (July 1)
+  data_raw_time$t <- as.integer(difftime(data_raw_time$date, time_origin, units = "days")) #Days since time origin
+  initial_time <- min(data_raw_time$t) - start_pf_time #Start particle filter a given time (default = 30d) before first observation
+
+  #Create daily sequence from initial_time to end of observations
+  #This is so the trajector histories return daily values (otherwise it returns
+  #model values only at the dates of observation)
+  start_stoch <- lubridate::floor_date(zoo::as.Date(min(data_raw_time$date) - start_pf_time), unit='year') #Start of stochastic schedule; needs to start when particle filter starts
+  ## Provide schedule for annual changes in stochastic process (in this case EIR)
+  ## Converts a sequence of dates (from start_stoch to 1 year after last observation point) to days since January 1 of the year before observation
+  stoch_update_dates <- c(seq.Date(start_stoch, start_obs, by = 'year'), seq.Date(start_obs, max(as.Date(data_raw_time$date + 365), na.rm = TRUE), by = 'year')[-1])
+  stochastic_schedule <- as.integer(difftime(stoch_update_dates,time_origin,units="days"))
+  if(check_flexibility){
+    flex_seq <- seq.Date(start_stoch, start_obs, by = 'year')
+    flex_time_dates <- as.Date(paste0(lubridate::year(flex_seq), '-07-01'))
+    dummy_dates <- data.frame(date = c(start_stoch, flex_time_dates[-length(flex_time_dates)]))
+    data_raw_time <- dplyr::bind_rows(dummy_dates,data_raw_time)
+    data_raw_time$t <- as.integer(difftime(data_raw_time$date,time_origin,units="days")) #Calculate date as number of days since July 1 of year before observation
+    initial_time <- min(data_raw_time$t)
+  }
+  data <- mcstate::particle_filter_data(data_raw_time, time = "t", rate = NULL, initial_time = initial_time) #Declares data to be used for particle filter fitting
+
+
+
+
+  return(list(data=data,stochastic_schedule=stochastic_schedule,start_stoch=start_stoch,time_origin=time_origin))
+}
+
+#------------------------------------------------
 #' transform final state of a seasonal model into the initial state of a stochastic model
 #'
 #' \code{transform_init} Transform final state of a seasonal model into the initial state of a stochastic model
