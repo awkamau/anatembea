@@ -461,6 +461,9 @@ output(sev_inc014) <- sum(sev_inc0to14)/sum(den[1:age14])
 # Total severe incidence
 output(sev_inc_all) <- sum(sev_inc[,])
 
+output(sev_prob_init) <- sev_prob
+
+
 EIR_agg[,] <- EIR[i,j]* DY /(rel_foi[j] * foi_age[i])
 dim(EIR_agg) <- c(na,nh)
 output(EIR_out) <- (av * Iv/omega)*DY

@@ -313,6 +313,7 @@ transform_init <- function(final_state = NULL){
        betaa_eq = f$betaa_eq[last],
        FOIv_eq = f$FOIv_init[last],
        prev = f$prev[last],
+       sev_prob = f$sev_prob_init[last],
        init_EL = f$EL_init[last],
        init_LL = f$LL_init[last],
        init_PL = f$PL_init[last],
