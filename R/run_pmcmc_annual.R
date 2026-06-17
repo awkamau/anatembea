@@ -116,7 +116,8 @@ run_pmcmc_annual <- function(data_raw=NULL,
                                                preyears = preyears,
                                                particle_tune = particle_tune,
                                                comparison = comparison,
-                                               avg_prev = avg_prev)
+                                               avg_prev = avg_prev,
+                                               sev_prob = 0.1)
 
   ## If a deterministic seasonal model is needed prior to the stochastic model, this loads the deterministic odin model
   det_model <- NULL
