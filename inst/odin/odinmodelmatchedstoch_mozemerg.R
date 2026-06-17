@@ -572,6 +572,7 @@ output(sev_inc014) <- sum(sev_inc0to14)/sum(den[1:age14])
 
 # Total severe incidence
 output(sev_inc_all) <- sum(sev_inc[,])
+output(sev_prob_init) <- sev_prob
 
 
 # Param checking outputs
