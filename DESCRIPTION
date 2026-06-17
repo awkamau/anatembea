@@ -25,6 +25,7 @@ Imports:
     statmod,
     stringi,
     stringr,
+    roxygen2,
     RecordLinkage
 Remotes:
     mrc-ide/dust,
