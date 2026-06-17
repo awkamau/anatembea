@@ -39,6 +39,8 @@ Kilifi_pr_det <-  readRDS("~/Library/CloudStorage/OneDrive-LSTM/LSTM/WT work/mal
 
 Kilifi_pr_det_u5 <- readRDS("~/Library/CloudStorage/OneDrive-LSTM/LSTM/WT work/malariasimulation/data/Kilifi_pr_det_u5.rds")
 
+Kilifi_sm <- readRDS("/Users/alice.kamau/Library/CloudStorage/OneDrive-LSTM/LSTM/WT work/malariasimulation/data/Kilifi_malaria_hosp.rds")
+
 # Kilifi_pr_det_u5 <- Kilifi_pr_det_u5%>%
 #                     dplyr::filter(YY > 1999)
 
@@ -95,7 +97,7 @@ We can then visualise how well the pMCMC fit to the prevalence data, as well as 
 First we'll perform some simple diagnostics, including visualising the MCMC trace and calculating the acceptance rate and effective sample size.
 
 ```{r diagnostics, eval=identical(Sys.getenv("NOT_CRAN"), "true")}
-measure_names <- c('prev_05',"prev_flex","clininc_014",'clininc_all','EIR','betaa')
+measure_names <- c('prev_05',"prev_flex","clininc_014",'clininc_all','severe_all',"severe_05","severe_14",'EIR','betaa')
 year <- Kilifi_pr_det3$year
 
 timelength <- length(year)
@@ -167,6 +169,24 @@ inc_plot2 <- ggplot(data=history.dfs[['clininc_all']])+
   theme_minimal()+
   theme(axis.title.x = element_blank())
 
+
+sev_plot <- ggplot(data=history.dfs[['severe_14']])+
+  geom_ribbon(aes(x=year,ymin=lower,ymax=upper),fill="#B2DF8A")+
+  geom_line(aes(x=year,y=median),color="#33A02C")+
+  geom_point(data=Kilifi_sm,aes(x=YY,y=rate),fill='black')+
+  scale_y_continuous(limits=c(0,NA),expand=c(0,0))+
+  labs(y='Severe Incidence,\n 0- 14 years')+
+  theme_minimal()+
+  theme(axis.title.x = element_blank())
+
+sev_plot2 <- ggplot(data=history.dfs[['severe_05']])+
+  geom_ribbon(aes(x=year,ymin=lower,ymax=upper),fill="orange")+
+  geom_line(aes(x=year,y=median),color="brown")+
+  scale_y_continuous(limits=c(0,NA),expand=c(0,0))+
+  labs(y='Severe Incidence,\n<5 years')+
+  theme_minimal()+
+  theme(axis.title.x = element_blank())
+
 eir_plot <- ggplot(data=history.dfs[['EIR']])+
   geom_ribbon(aes(x=year,ymin=lower,ymax=upper),fill="#FB9A99")+
   geom_line(aes(x=year,y=median),color="#E31A1C")+
@@ -175,7 +195,7 @@ eir_plot <- ggplot(data=history.dfs[['EIR']])+
   theme_minimal()+
   theme(axis.title.x = element_blank())
 
-combined_ggplot <- cowplot::plot_grid(prev_plot,prev_plot2,inc_plot,inc_plot2,eir_plot,ncol=1)
+combined_ggplot <- cowplot::plot_grid(prev_plot,prev_plot2,inc_plot,inc_plot2,sev_plot,sev_plot2,eir_plot,ncol=1)
 # combined_ggplot <- prev_plot+inc_plot+eir_plot+plot_layout(ncol=1)
 result_kilifi$output <- combined_ggplot
 
