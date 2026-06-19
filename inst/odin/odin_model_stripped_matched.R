@@ -445,7 +445,7 @@ output(incunder5) <- sum(clin_inc0tounder5)/sum(den[1:age59])
 dim(clin_inc0to5) <- c(age05,nh)
 clin_inc0to5[1:age05,] <- clin_inc[i,j]
 output(inc05) <- sum(clin_inc0to5)/sum(den[1:age05])
-≠
+
 output(inc) <- sum(clin_inc[,])
 
 # Severe incidence for under-5s
