@@ -491,7 +491,6 @@ age59 <- user(integer=TRUE)
 age05 <- user(integer=TRUE)
 age14 <- user(integer=TRUE)
 age15 <- user(integer=TRUE)
-age514 <- user(integer=TRUE)
 
 age_flex_length <- user(integer=TRUE)
 age0 <- user(integer=TRUE)
