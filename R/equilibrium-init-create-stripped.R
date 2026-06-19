@@ -251,7 +251,7 @@ equilibrium_init_create_stripped <- function(age_vector, het_brackets,
   }
 
   prev <- sum(prev_eq[1:age59,])/sum(den[1:age59])
-  prev_514 <- sum(prev_eq[age5:age14,])/sum(den[age5:age14])
+  prev_514 <- sum(prev_eq[age05:age14,])/sum(den[age05:age14])
   prev_15plus <- sum(prev_eq[age15:na,])/sum(den[age15:na])
   prev2.10 <- sum(prev_eq[age02:age10,])/sum(den[age02:age10])
 
