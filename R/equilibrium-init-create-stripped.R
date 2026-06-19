@@ -81,7 +81,7 @@ equilibrium_init_create_stripped <- function(age_vector, het_brackets,
   age0 <- which(age_vector > mpl$age_min)[1] - 1 #Allow a user-defined age group
   age1 <- which(age_vector > mpl$age_max)[1] - 1
 
-  sev_prob = 0.1  # Example: 10% of clinical cases become severe
+  sev_prob = 0.075  # Example: 7.5% of clinical cases become severe when an individual has no immunity
   ## force of infection
   foi_age <- c()
   # for (i in 1:na){
