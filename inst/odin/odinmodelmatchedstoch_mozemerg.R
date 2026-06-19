@@ -490,6 +490,8 @@ dim(den) <- na
 age59 <- user(integer=TRUE)
 age05 <- user(integer=TRUE)
 age14 <- user(integer=TRUE)
+age514 <- user(integer=TRUE)
+age15 <- user(integer=TRUE)
 age_flex_length <- user(integer=TRUE)
 age0 <- user(integer=TRUE)
 age1 <- user(integer=TRUE)
@@ -499,6 +501,17 @@ dim(prev0to59) <- c(age59,nh)
 prev0to59[1:age59,] <- T[i,j] + D[i,j]  + A[i,j]*p_det[i,j]
 prev_u5 <- sum(prev0to59[,])/sum(den[1:age59])
 output(prev) <- prev_u5
+
+dim(prev5to14) <- c(age514,nh)
+prev5to14[1:age514,] <- T[i,j] + D[i,j]  + A[i,j]*p_det[i,j]
+prev_514 <- sum(prev5to14[,])/sum(den[1:age514])
+output(prev_514) <- prev_514
+
+dim(prev15to100) <- c(age15,nh)
+prev15to100[1:age15,] <- T[i,j] + D[i,j]  + A[i,j]*p_det[i,j]
+prev_15plus <- sum(prev15to100[,])/sum(den[1:age15])
+output(prev_15plus) <- prev_15plus
+
 
 dim(prevX) <- c(age0,nh)
 dim(prevY) <- c(age1,nh)
