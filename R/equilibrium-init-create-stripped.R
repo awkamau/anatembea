@@ -78,7 +78,6 @@ equilibrium_init_create_stripped <- function(age_vector, het_brackets,
   age10 <- which(age_vector > 10)[1] - 1  # index of age vector before age is 10 years
   age14 <- which(age_vector > 14)[1] - 1  # index of age vector before age is 14 years
   age15 <- which(age_vector >= 15)[1]  # index of first age group >= 15 years
-  age514 <- age05:age14
 
   age0 <- which(age_vector > mpl$age_min)[1] - 1 #Allow a user-defined age group
   age1 <- which(age_vector > mpl$age_max)[1] - 1
@@ -327,7 +326,7 @@ equilibrium_init_create_stripped <- function(age_vector, het_brackets,
               FOIv_eq = FOIv_eq,
               FOI_eq = FOI_eq, EIR_eq = EIR_eq, init_EIR = init_EIR,
               den = den, age59 = age59, age05 = age05,age10=age10,
-              age0 = age0, age1 = age1, age14 = age14,age15 = age15, age514 = age514,
+              age0 = age0, age1 = age1, age14 = age14,age15 = age15,
               age_flex_length = age_flex_length,
               pi = pi,
               prev05 = prev,inc = inc, inc05=inc05,inc014=inc014,
