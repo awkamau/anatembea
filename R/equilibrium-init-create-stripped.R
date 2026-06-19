@@ -77,6 +77,7 @@ equilibrium_init_create_stripped <- function(age_vector, het_brackets,
   age02 <- which(age_vector > 2)[1] - 1  # index of age vector before age is 2 years
   age10 <- which(age_vector > 10)[1] - 1  # index of age vector before age is 10 years
   age14 <- which(age_vector > 14)[1] - 1  # index of age vector before age is 14 years
+  age15 <- which(age_vector >= 15)[1]  # index of first age group >= 15 years
 
   age0 <- which(age_vector > mpl$age_min)[1] - 1 #Allow a user-defined age group
   age1 <- which(age_vector > mpl$age_max)[1] - 1
@@ -248,7 +249,10 @@ equilibrium_init_create_stripped <- function(age_vector, het_brackets,
       # print(FOIvij_eq[i,j])
     }
   }
+
   prev <- sum(prev_eq[1:age59,])/sum(den[1:age59])
+  prev_514 <- sum(prev_eq[age5:age14,])/sum(den[age5:age14])
+  prev_15plus <- sum(prev_eq[age15:na,])/sum(den[age15:na])
   prev2.10 <- sum(prev_eq[age02:age10,])/sum(den[age02:age10])
 
   age_flex_length <- age1 - age0 + 1
@@ -301,11 +305,13 @@ equilibrium_init_create_stripped <- function(age_vector, het_brackets,
 
   inc <- sum(clin_inc)
   inc05 <- sum(clin_inc[1:age05,])/sum(den[1:age59])
+  inc014 <- sum(clin_inc[1:age14,])/sum(den[1:age14])
   inc_flex <- sum(clin_inc[age0:age1,])/sum(den[age0:age1])
 
   sev_inc <- mpl$sev_prob * clin_inc
   sev_inc <- array(sev_inc, c(na, nh))
   sev_inc05 <- sum(sev_inc[1:age05,])/sum(den[1:age59])
+  sev_inc014 <- sum(sev_inc[1:age14,])/sum(den[1:age14])
 
 
   ## collate init
@@ -323,10 +329,10 @@ equilibrium_init_create_stripped <- function(age_vector, het_brackets,
               age0 = age0, age1 = age1, age14 = age14,
               age_flex_length = age_flex_length,
               pi = pi,
-              prev05 = prev,inc = inc, inc05=inc05,
-              sev_inc = sum(sev_inc), sev_inc05 = sev_inc05,
+              prev05 = prev,inc = inc, inc05=inc05,inc014=inc014,
+              sev_inc = sum(sev_inc), sev_inc05 = sev_inc05,sev_inc014 = sev_inc014,
               prev_flex = prev_flex, inc_flex = inc_flex,
-              prev2.10 = prev2.10,
+              prev2.10 = prev2.10, prev_514 = prev_514, prev_15plus = prev_15plus,
               age = age_vector*mpl$DY, ft = ft,
               age20l = age20l, age20u = age20u, age_20_factor = age_20_factor
               ##extras for checking:
