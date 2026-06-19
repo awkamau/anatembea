@@ -522,6 +522,7 @@ dim(den_init) <- c(na)
 output(age59_init) <- age59
 output(age05_init) <- age05
 output(age14_init) <- age14
+output(age15_init) <- age15
 output(age_init[]) <- age[i]
 dim(age_init) <- c(na)
 output(age0_init) <- age0
