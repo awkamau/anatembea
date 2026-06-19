@@ -112,7 +112,8 @@ We can then visualise how well the pMCMC fit to the prevalence data, as well as 
 First we'll perform some simple diagnostics, including visualising the MCMC trace and calculating the acceptance rate and effective sample size.
 
 ```{r diagnostics, eval=identical(Sys.getenv("NOT_CRAN"), "true")}
-measure_names <- c('prev_05',"prev_flex","clininc_014",'clininc_all','severe_all',"severe_05","severe_14",'EIR','betaa')
+measure_names <- c('prev_05',"prev_flex","clininc_014",'clininc_all',
+                   'severe_all',"severe_05","severe_14",'EIR','betaa',"prev_15plus")
 year <- Kilifi_pr_det3$year
 
 timelength <- length(year)
@@ -172,6 +173,14 @@ prev_plot2 <- ggplot(data=history.dfs[['prev_05']])+
   geom_point(data=Kilifi_pr_det3_u5,aes(x=year,y=positive/tested),fill='black')+
   scale_y_continuous(limits=c(0,0.5),expand=c(0,0))+
   labs(y='RDT Prevalence,\nChildren < 5 years')+
+  theme_minimal()+
+  theme(axis.title.x = element_blank())
+
+prev_plot3 <- ggplot(data=history.dfs[['prev_15plus']])+
+  geom_ribbon(aes(x=year,ymin=lower,ymax=upper),fill="pink")+
+  geom_line(aes(x=year,y=median),color="purple")+
+  scale_y_continuous(limits=c(0,0.5),expand=c(0,0))+
+  labs(y='RDT Prevalence >= 15 years')+
   theme_minimal()+
   theme(axis.title.x = element_blank())
 
