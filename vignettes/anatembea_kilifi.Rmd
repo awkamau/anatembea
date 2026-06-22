@@ -46,6 +46,8 @@ Kilifi_pr_det_u5 <- readRDS("~/Library/CloudStorage/OneDrive-LSTM/LSTM/WT work/m
 
 Kilifi_sm <- readRDS("/Users/alice.kamau/Library/CloudStorage/OneDrive-LSTM/LSTM/WT work/malariasimulation/data/Kilifi_malaria_hosp.rds")
 
+Kilifi_sm_u5 <- readRDS("/Users/alice.kamau/Library/CloudStorage/OneDrive-LSTM/LSTM/WT work/malariasimulation/data/Kilifi_malaria_adm_u5.rds")
+
 kilifi_mbg_pr <- read_excel("~/Library/CloudStorage/OneDrive-LSTM/LSTM/WT work/anatembea/data-raw/kilifi_mbg_pr.xlsx")
 
 # Kilifi_pr_det_u5 <- Kilifi_pr_det_u5%>%
@@ -99,10 +101,19 @@ Other optional user parameters include pMCMC particles/step/chains, the maximum 
 ```{r pmcmc, fig.show='hold',  dependson="data", eval=identical(Sys.getenv("NOT_CRAN"), "true")}
 result_kilifi <- anatembea:::run_pmcmc_annual(data_raw=kilifi_mbg_pr,
                                target_prev = 0.3,
+                               target_prev_group= "2to10",
+                               comparison = '2to10',
+                               n_particles=100,
+                               n_steps = 1000)
+
+
+result_kilifi2 <- anatembea:::run_pmcmc_annual(data_raw=Kilifi_pr_det3,
+                               target_prev = 0.3,
                                target_prev_group= "0to14",
                                comparison = '0to14',
-                               n_particles=10,
-                               n_steps = 10)
+                               n_particles=100,
+                               n_steps = 1000)
+
 ```
 
 ## Visualising output
@@ -161,9 +172,9 @@ prev_plot <- ggplot(data=history.dfs[['prev_flex']])+
                 width = 0.2, alpha = 0.5, linetype =  "dashed", color ="red") +
   geom_point(data=Kilifi_pr_mbg,aes(x=yy,y=median),color='black') +
   geom_errorbar(data=Kilifi_pr_mbg,aes(x=yy,ymin = x95_percent_lci, ymax = x95_percent_uci), 
-                width = 0.2, alpha = 0.5, linetype =  "dashed") +
+                width = 0.2, alpha = 0.5, linetype =  "dashed") +                   scale_x_continuous(breaks=seq(1990,2025,5),expand=c(0,0))+
   scale_y_continuous(limits=c(0,0.8),expand=c(0,0))+
-  labs(y='RDT Prevalence,\nChildren 1 month to 14 years')+
+  labs(y='Prevalence in 2 to 10 years')+
   theme_minimal()+
   theme(axis.title.x = element_blank())
 
@@ -171,15 +182,16 @@ prev_plot2 <- ggplot(data=history.dfs[['prev_05']])+
   geom_ribbon(aes(x=year,ymin=lower,ymax=upper),fill="pink")+
   geom_line(aes(x=year,y=median),color="purple")+
   geom_point(data=Kilifi_pr_det3_u5,aes(x=year,y=positive/tested),fill='black')+
-  scale_y_continuous(limits=c(0,0.5),expand=c(0,0))+
-  labs(y='RDT Prevalence,\nChildren < 5 years')+
+  scale_x_continuous(breaks=seq(1990,2025,5),expand=c(0,0))+
+  scale_y_continuous(limits=c(0,0.8),expand=c(0,0))+
+  labs(y='Prevalence in children < 5 years')+
   theme_minimal()+
   theme(axis.title.x = element_blank())
 
 prev_plot3 <- ggplot(data=history.dfs[['prev_15plus']])+
   geom_ribbon(aes(x=year,ymin=lower,ymax=upper),fill="pink")+
   geom_line(aes(x=year,y=median),color="purple")+
-  scale_y_continuous(limits=c(0,0.5),expand=c(0,0))+
+  scale_y_continuous(limits=c(0,0.8),expand=c(0,0))+
   labs(y='RDT Prevalence >= 15 years')+
   theme_minimal()+
   theme(axis.title.x = element_blank())
@@ -203,25 +215,29 @@ inc_plot2 <- ggplot(data=history.dfs[['clininc_all']])+
 
 
 sev_plot <- ggplot(data=history.dfs[['severe_14']])+
-  geom_ribbon(aes(x=year,ymin=lower,ymax=upper),fill="#B2DF8A")+
-  geom_line(aes(x=year,y=median),color="#33A02C")+
-  geom_line(data=Kilifi_sm,aes(x=YY,y=rate*0.03),color='black', linetype = "dashed")+
+  geom_ribbon(aes(x=year,ymin=lower*1000,ymax=upper*1000),fill="#B2DF8A")+
+  geom_line(aes(x=year,y=median*1000),color="#33A02C")+
+  geom_line(data=Kilifi_sm,aes(x=YY,y=rate*0.03*1000),color='black', linetype = "dashed")+
+  scale_x_continuous(breaks=seq(1990,2025,5),expand=c(0,0))+
   scale_y_continuous(limits=c(0,NA),expand=c(0,0))+
-  labs(y='Severe incidence, \n0- 14 years')+
+  labs(y='Severe incidence per 1,000 children, \naged 0- 14 years')+
   theme_minimal()+
   theme(axis.title.x = element_blank())
 
 sev_plot2 <- ggplot(data=history.dfs[['severe_05']])+
-  geom_ribbon(aes(x=year,ymin=lower,ymax=upper),fill="orange")+
-  geom_line(aes(x=year,y=median),color="brown")+
+  geom_ribbon(aes(x=year,ymin=lower*1000,ymax=upper*1000),fill="orange")+
+  geom_line(aes(x=year,y=median*1000),color="brown")+
+    geom_line(data=Kilifi_sm_u5,aes(x=YY,y=rate*0.03*1000),color='black', linetype = "dashed")+
+    scale_x_continuous(breaks=seq(1990,2025,5),expand=c(0,0))+
   scale_y_continuous(limits=c(0,NA),expand=c(0,0))+
-  labs(y='Severe Incidence,\n<5 years')+
+  labs(y='Severe incidence per 1,000 children,\n<5 years')+
   theme_minimal()+
   theme(axis.title.x = element_blank())
 
 eir_plot <- ggplot(data=history.dfs[['EIR']])+
   geom_ribbon(aes(x=year,ymin=lower,ymax=upper),fill="#FB9A99")+
   geom_line(aes(x=year,y=median),color="#E31A1C")+
+  scale_x_continuous(breaks=seq(1990,2025,5),expand=c(0,0))+
   scale_y_log10(expand=c(0,0))+
   labs(y='EIR')+
   theme_minimal()+
