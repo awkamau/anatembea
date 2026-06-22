@@ -507,7 +507,7 @@ dim(prev14) <- c(age14,nh)
 
 prev05[1:age05,] <- T[i,j] + D[i,j]  + A[i,j]*p_det[i,j]
 prev14[1:age14,] <- T[i,j] + D[i,j]  + A[i,j]*p_det[i,j]
-prev_514 <- (sum(prev14[,])-sum(prev05[,]))/sum(den[age05+1:age14])
+prev_514 <- (sum(prev14[,])-sum(prev05[,]))/sum(den[age05:age14])
 output(prev_514) <- prev_514
 
 dim(prev15to100) <- c(age15,nh)
