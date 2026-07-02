@@ -452,17 +452,17 @@ output(inc05) <- sum(clin_inc0to5)/sum(den[1:age05])
 output(inc) <- sum(clin_inc[,])
 
 # Severe incidence for under-5s
-dim(sev_inc0to5) <- c(age05,nh)
-sev_inc0to5[1:age05,] <- sev_inc[i,j]
-output(sev_inc05) <- sum(sev_inc0to5)/sum(den[1:age05])
-
-# Compute clinical incidence for 0-14 age bracket
-dim(sev_inc0to14) <- c(age14,nh)
-sev_inc0to14[1:age14,] <- sev_inc[i,j]
-output(sev_inc014) <- sum(sev_inc0to14)/sum(den[1:age14])
+# dim(sev_inc0to5) <- c(age05,nh)
+# sev_inc0to5[1:age05,] <- sev_inc[i,j]
+# output(sev_inc05) <- sum(sev_inc0to5)/sum(den[1:age05])
+#
+# # Compute clinical incidence for 0-14 age bracket
+# dim(sev_inc0to14) <- c(age14,nh)
+# sev_inc0to14[1:age14,] <- sev_inc[i,j]
+# output(sev_inc014) <- sum(sev_inc0to14)/sum(den[1:age14])
 
 # Total severe incidence
-output(sev_inc_all) <- sum(sev_inc[,])
+#output(sev_inc_all) <- sum(sev_inc[,])
 
 #output(sev_prob_init) <- sev_prob
 
