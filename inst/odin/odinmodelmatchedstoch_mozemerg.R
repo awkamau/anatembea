@@ -363,7 +363,7 @@ deriv(FOIv[1]) <- lag_FOIv - (lag_ratesMos/delayGam)*FOIv[1]
 deriv(FOIv[2:lag_ratesMos]) <- (lag_ratesMos/delayGam)*FOIv[i-1] -
   (lag_ratesMos/delayGam)*FOIv[i]
 
-output(FOIv) <- FOIv
+output(FOIm) <- FOIv
 
 ince <- FOIv[lag_ratesMos] * lag_ratesMos/delayGam * Sv
 
@@ -510,12 +510,12 @@ dim(prev14) <- c(age14,nh)
 prev05[1:age05,] <- T[i,j] + D[i,j]  + A[i,j]*p_det[i,j]
 prev14[1:age14,] <- T[i,j] + D[i,j]  + A[i,j]*p_det[i,j]
 prev_514 <- (sum(prev14[,])-sum(prev05[,]))/sum(den[age05:age14])
-output(prev_514) <- prev_514
+output(prev_5_14) <- prev_514
 
 dim(prev15to100) <- c(age15,nh)
 prev15to100[age15:na,] <- T[i,j] + D[i,j]  + A[i,j]*p_det[i,j]
 prev_15plus <- sum(prev15to100[,])/sum(den[age15:na])
-output(prev_15plus) <- prev_15plus
+output(prev_15above) <- prev_15plus
 
 dim(prevX) <- c(age0,nh)
 dim(prevY) <- c(age1,nh)
@@ -525,7 +525,7 @@ prevY[1:age1,] <- T[i,j] + D[i,j]  + A[i,j]*p_det[i,j]
 
 prev_flex <- (sum(prevY[,])-sum(prevX[,]))/sum(den[age0:age1])
 
-output(prev_flex) <- prev_flex
+output(prev_flexi) <- prev_flex
 
 
 output(age59)<-age59
