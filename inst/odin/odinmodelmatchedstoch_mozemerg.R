@@ -363,9 +363,9 @@ deriv(FOIv[1]) <- lag_FOIv - (lag_ratesMos/delayGam)*FOIv[1]
 deriv(FOIv[2:lag_ratesMos]) <- (lag_ratesMos/delayGam)*FOIv[i-1] -
   (lag_ratesMos/delayGam)*FOIv[i]
 
-output(FOIm) <- FOIv
-
 ince <- FOIv[lag_ratesMos] * lag_ratesMos/delayGam * Sv
+
+output(FOIm) <- sum(FOIv[])
 
 initial(ince_delay[]) <- FOIv_eq*init_Sv*mv0*delayMos/lag_ratesMos
 dim(ince_delay) <- lag_ratesMos
