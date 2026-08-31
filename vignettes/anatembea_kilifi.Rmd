@@ -37,8 +37,20 @@ library(anatembea)
 library(readxl)
 library(janitor)
 library(epitools)
+library(data.table)
+
+sys.source(here::here("standardise_pr.R"), envir = .GlobalEnv)
+
+final_std2 <- final_std %>% filter(yy > 1999) %>%
+  mutate(year = yy,
+        tested = as.integer(total_std_pop),
+         positive = as.integer(expected_cases)
+         ) %>% select(year, tested, positive)
+
 
 Kilifi_pr_mbg <- read_excel("~/Library/CloudStorage/OneDrive-LSTM/KWTRP/Postdoc/KHDSS malaria admission/KCH admissions 1990-2024/MBG MAP Trauma TPR KHDSS_PfPR (031025).xlsx", sheet = "MBG PfPR2-10") %>% clean_names() %>% filter(yy>1989)
+
+kilifi_trauma_pr <- read_excel("~/Library/CloudStorage/OneDrive-LSTM/KWTRP/Postdoc/KHDSS malaria admission/KCH admissions 1990-2024/data/Trauma TPR KHDSS (141025).xlsx")
 
 Kilifi_pr_det <-  readRDS("~/Library/CloudStorage/OneDrive-LSTM/LSTM/WT work/malariasimulation/data/Kilifi_pr_det.rds")
 
@@ -50,19 +62,34 @@ Kilifi_sm_u5 <- readRDS("/Users/alice.kamau/Library/CloudStorage/OneDrive-LSTM/L
 
 kilifi_mbg_pr <- read_excel("~/Library/CloudStorage/OneDrive-LSTM/LSTM/WT work/anatembea/data-raw/kilifi_mbg_pr.xlsx")
 
+KEN_PfPR_mean_long <- readRDS("~/Library/CloudStorage/OneDrive-LSTM/KWTRP/Postdoc/Age profile/PfPR/Data/KEN_PfPR_mean_long.rds")
+
+malariasim_prev <- readRDS("~/Library/CloudStorage/OneDrive-LSTM/LSTM/WT work/anatembea/data/malariasim_prev.rds")
+
+KEN_PfPR_mean <- KEN_PfPR_mean_long %>% 
+                        dplyr::select(Admin_1, year, PfPR) %>%
+                        dplyr::mutate(tested = as.integer(100),
+                                      positive = as.integer(round(PfPR*100))) %>%
+                        dplyr::select(-PfPR)
+
 # Kilifi_pr_det_u5 <- Kilifi_pr_det_u5%>%
 #                     dplyr::filter(YY > 1999)
 
-  kilifi_mbg_pr <- kilifi_mbg_pr %>% 
+kilifi_mbg_pr <- kilifi_mbg_pr %>% #filter(year > 1999) %>%
                     mutate(positive = as.integer(positive),
                            tested = as.integer(tested))
+  
+kilifi_trauma_pr <- kilifi_trauma_pr %>% filter(YY > 1999) 
+Kilifi_pr_mbg <- Kilifi_pr_mbg %>% filter(yy > 1999) 
+
+Kilifi_pr_det_u5 <- Kilifi_pr_det_u5 %>% filter(YY > 1999) 
 
 Kilifi_pr_det2 <- Kilifi_pr_det%>%
                     ungroup()%>%
                     dplyr::filter(YY > 1999)%>% 
                   dplyr::select(month,positive,tested)
 
-Kilifi_pr_det3 <- Kilifi_pr_det %>% 
+Kilifi_pr_det3 <- Kilifi_pr_det %>% filter(YY > 1999) %>% 
   mutate(year = YY) %>% 
   group_by(year) %>% 
   summarise(tested = sum(tested, na.rm = TRUE),
@@ -72,7 +99,7 @@ Kilifi_pr_det4 <- epitools::binom.exact(Kilifi_pr_det3$positive, Kilifi_pr_det3$
 
 Kilifi_pr_det4 <- Kilifi_pr_det4 %>%  rowid_to_column("year") %>% mutate(year = year + 1989)
 
-Kilifi_pr_det3_u5 <- Kilifi_pr_det_u5 %>% 
+Kilifi_pr_det_u5 <- Kilifi_pr_det_u5 %>% 
   mutate(year = YY) %>% 
   group_by(year) %>% 
   summarise(tested = sum(tested, na.rm = TRUE),
@@ -99,20 +126,29 @@ By default, in the absence of other contextual information, we use the first yea
 Other optional user parameters include pMCMC particles/step/chains, the maximum mosquito emergence rate, and treated fraction of clinical cases. No rainfall or other environmental data are required. For available options, see package [documentation](https://mrc-ide.github.io/anatembea/reference/run_pmcmc.html "run_pmcmc documentation").
 
 ```{r pmcmc, fig.show='hold',  dependson="data", eval=identical(Sys.getenv("NOT_CRAN"), "true")}
+
 result_kilifi <- anatembea:::run_pmcmc_annual(data_raw=kilifi_mbg_pr,
                                target_prev = 0.3,
                                target_prev_group= "2to10",
                                comparison = '2to10',
                                n_particles=100,
-                               n_steps = 1000)
+                               n_steps = 100)
 
 
-result_kilifi2 <- anatembea:::run_pmcmc_annual(data_raw=Kilifi_pr_det3,
+result_kilifi <- anatembea:::run_pmcmc_annual(data_raw=malariasim_prev,
+                               target_prev = 0.43,
+                               target_prev_group= "2to10",
+                               comparison = '2to10',
+                               n_particles=10,
+                               n_steps = 10)
+
+
+result_kilifi <- anatembea:::run_pmcmc_annual(data_raw=final_std2,
                                target_prev = 0.3,
-                               target_prev_group= "0to14",
-                               comparison = '0to14',
+                               target_prev_group= "2to10",
+                               comparison = '2to10',
                                n_particles=100,
-                               n_steps = 1000)
+                               n_steps = 100)
 
 ```
 
@@ -123,9 +159,8 @@ We can then visualise how well the pMCMC fit to the prevalence data, as well as 
 First we'll perform some simple diagnostics, including visualising the MCMC trace and calculating the acceptance rate and effective sample size.
 
 ```{r diagnostics, eval=identical(Sys.getenv("NOT_CRAN"), "true")}
-measure_names <- c('prev_05',"prev_flex","clininc_014",'clininc_all',
-                   'severe_all',"severe_05","severe_14",'EIR','betaa',"prev_15plus")
-year <- Kilifi_pr_det3$year
+measure_names <- c('prev_05',"prev_flex","clininc_014",'clininc_all','EIR','betaa')
+year <- kilifi_mbg_pr$year
 
 timelength <- length(year)
 num_year <- length(result_kilifi$history[1,1,])
@@ -150,6 +185,7 @@ In the example above, our diagnostics don't look great. We want an acceptance ra
 Even though our MCMC doesn't look great, let's still visualize the model fit to the data:
 
 ```{r output_process, eval=identical(Sys.getenv("NOT_CRAN"), "true")}
+
 history.dfs <- lapply(measure_names,function(x){
   as.data.frame(t(result_kilifi$history[x,,start_year_index:num_year]))%>%
         dplyr::mutate(year=year)%>%
@@ -163,45 +199,69 @@ history.dfs <- lapply(measure_names,function(x){
 names(history.dfs) <- measure_names
 
 
+saveRDS(history.dfs[['EIR']],"~/Library/CloudStorage/OneDrive-LSTM/LSTM/WT work/anatembea/data/Kilifi_eir.rds")
 
-prev_plot <- ggplot(data=history.dfs[['prev_flex']])+
-  geom_ribbon(aes(x=year,ymin=lower,ymax=upper),fill="#A6CEE3")+
-  geom_line(aes(x=year,y=median),color="#1F78B4")+
-  geom_point(data=Kilifi_pr_det4,aes(x=year,y=proportion),color='red')+
-  geom_errorbar(data=Kilifi_pr_det4,aes(x=year,ymin = lower, ymax = upper), 
-                width = 0.2, alpha = 0.5, linetype =  "dashed", color ="red") +
-  geom_point(data=Kilifi_pr_mbg,aes(x=yy,y=median),color='black') +
-  geom_errorbar(data=Kilifi_pr_mbg,aes(x=yy,ymin = x95_percent_lci, ymax = x95_percent_uci), 
-                width = 0.2, alpha = 0.5, linetype =  "dashed") +                   scale_x_continuous(breaks=seq(1990,2025,5),expand=c(0,0))+
-  scale_y_continuous(limits=c(0,0.8),expand=c(0,0))+
-  labs(y='Prevalence in 2 to 10 years')+
-  theme_minimal()+
-  theme(axis.title.x = element_blank())
+saveRDS(history.dfs[['prev_flex']],"~/Library/CloudStorage/OneDrive-LSTM/LSTM/WT work/anatembea/data/Kilifi_pr2_10.rds")
 
-prev_plot2 <- ggplot(data=history.dfs[['prev_05']])+
-  geom_ribbon(aes(x=year,ymin=lower,ymax=upper),fill="pink")+
-  geom_line(aes(x=year,y=median),color="purple")+
-  geom_point(data=Kilifi_pr_det3_u5,aes(x=year,y=positive/tested),fill='black')+
-  scale_x_continuous(breaks=seq(1990,2025,5),expand=c(0,0))+
-  scale_y_continuous(limits=c(0,0.8),expand=c(0,0))+
-  labs(y='Prevalence in children < 5 years')+
-  theme_minimal()+
-  theme(axis.title.x = element_blank())
+saveRDS(history.dfs[['clininc_014']],"~/Library/CloudStorage/OneDrive-LSTM/LSTM/WT work/anatembea/data/Kilifi_ci.rds")
 
-prev_plot3 <- ggplot(data=history.dfs[['prev_15plus']])+
-  geom_ribbon(aes(x=year,ymin=lower,ymax=upper),fill="pink")+
-  geom_line(aes(x=year,y=median),color="purple")+
-  scale_y_continuous(limits=c(0,0.8),expand=c(0,0))+
-  labs(y='RDT Prevalence >= 15 years')+
-  theme_minimal()+
-  theme(axis.title.x = element_blank())
+prev_plot <- ggplot(data = history.dfs[["prev_flex"]]) +
+  geom_ribbon(aes(x = year, ymin = lower, ymax = upper), fill = "#A6CEE3") +
+  geom_line(aes(x = year, y = median, colour = "anatembea")) +
+  # geom_point(data = kilifi_trauma_pr, aes(x = YY, y = PR, colour = "IPD 1m-14y")) +
+  # geom_point(data = kilifi_trauma_pr,aes(x = YY, y = PR_Smith, colour = "IPD 2-10")) +
+  # geom_point(data = final_std2,aes(x = year, y = positive/tested, colour = "std PR")) +
+  # geom_errorbar(data = kilifi_trauma_pr,aes(x = YY, ymin = lower, ymax = upper),
+  #               width = 0.2, alpha = 0.5,linetype = "dashed",colour = "red") +
+  geom_point(data = Kilifi_pr_mbg, aes(x = yy, y = median, colour = "community MBG")) +
+  geom_errorbar(data = Kilifi_pr_mbg,aes(x = yy,ymin = x95_percent_lci,ymax = x95_percent_uci),
+                width = 0.2,alpha = 0.5,linetype = "dashed") +
+  scale_colour_manual(
+    name = "",
+    values = c(
+      "anatembea" = "#1F78B4",
+      "IPD 1m-14y" = "purple",
+      "IPD 2-10" = "red",
+      "std PR" = "orange",
+      "community MBG" = "black")) +
+  scale_x_continuous(breaks = seq(1990, 2025, 5),expand = c(0, 0)) +
+  scale_y_continuous(limits = c(0, 0.6),expand = c(0, 0) ) +
+  labs(y = "Prevalence in 2 to 10 years",colour = "Data source") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank()) +
+   theme(
+    legend.position = c(0.80, 0.85),
+    legend.background = element_rect(
+      fill = scales::alpha("white", 0.7),
+      colour = "grey70"), legend.key = element_blank())
+
+prev_plot2 <- ggplot(data = history.dfs[["prev_05"]]) +
+  geom_ribbon(aes(x = year, ymin = lower, ymax = upper), fill = "pink") +
+  geom_line(aes(x = year, y = median, colour = "anatembea")) +
+  geom_point(data = Kilifi_pr_det_u5, aes(x = year, y = positive/tested, colour = "IPD 1m-5y")) +
+  scale_colour_manual(
+    name = "",
+    values = c(
+      "anatembea" = "purple",
+      "IPD 1m-5y" = "black")) +
+  scale_x_continuous(breaks = seq(1990, 2025, 5),expand = c(0, 0)) +
+  scale_y_continuous(limits = c(0, 0.5),expand = c(0, 0) ) +
+  labs(y = "Prevalence in 2 to 10 years",colour = "Data source") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank()) +
+   theme(
+    legend.position = c(0.80, 0.85),
+    legend.background = element_rect(
+      fill = scales::alpha("white", 0.7),
+      colour = "grey70"), legend.key = element_blank())
+
 
 inc_plot <- ggplot(data=history.dfs[['clininc_014']])+
-  geom_ribbon(aes(x=year,ymin=lower,ymax=upper),fill="orange")+
-  geom_line(aes(x=year,y=median),color="brown")+
+  geom_ribbon(aes(x=year,ymin=lower*365,ymax=upper*365),fill="orange")+
+  geom_line(aes(x=year,y=median*365),color="brown")+
   #geom_line(data=Kilifi_sm,aes(x=YY,y=rate/12),color='black')+
   scale_y_continuous(limits=c(0,NA),expand=c(0,0))+
-  labs(y='Clinical Incidence,\n 0- 14 years')+
+  labs(y='Clinical Incidence 0- 14 years per year')+
   theme_minimal()+
   theme(axis.title.x = element_blank())
 
@@ -213,33 +273,52 @@ inc_plot2 <- ggplot(data=history.dfs[['clininc_all']])+
   theme_minimal()+
   theme(axis.title.x = element_blank())
 
+summary(Kilifi_sm)
+summary(history.dfs[['clininc_014']])
 
-sev_plot <- ggplot(data=history.dfs[['severe_14']])+
-  geom_ribbon(aes(x=year,ymin=lower*1000,ymax=upper*1000),fill="#B2DF8A")+
-  geom_line(aes(x=year,y=median*1000),color="#33A02C")+
-  geom_line(data=Kilifi_sm,aes(x=YY,y=rate*0.03*1000),color='black', linetype = "dashed")+
+sev_plot <- ggplot(data=history.dfs[['clininc_014']])+
+  geom_ribbon(aes(x=year,ymin=lower/0.0006,ymax=upper/0.0006),fill="#B2DF8A")+
+  geom_line(aes(x=year,y=median/0.0006),color="#33A02C")+
+  geom_line(data=Kilifi_sm,aes(x=YY,y=rate/0.003),color='black', linetype = "dashed")+
   scale_x_continuous(breaks=seq(1990,2025,5),expand=c(0,0))+
   scale_y_continuous(limits=c(0,NA),expand=c(0,0))+
-  labs(y='Severe incidence per 1,000 children, \naged 0- 14 years')+
+  labs(y='Clinical incidence aged 0- 14 years')+
   theme_minimal()+
   theme(axis.title.x = element_blank())
 
-sev_plot2 <- ggplot(data=history.dfs[['severe_05']])+
-  geom_ribbon(aes(x=year,ymin=lower*1000,ymax=upper*1000),fill="orange")+
-  geom_line(aes(x=year,y=median*1000),color="brown")+
-    geom_line(data=Kilifi_sm_u5,aes(x=YY,y=rate*0.03*1000),color='black', linetype = "dashed")+
-    scale_x_continuous(breaks=seq(1990,2025,5),expand=c(0,0))+
-  scale_y_continuous(limits=c(0,NA),expand=c(0,0))+
-  labs(y='Severe incidence per 1,000 children,\n<5 years')+
+
+sev_obs <- ggplot(data=Kilifi_sm) +
+  geom_ribbon(aes(x=YY,ymin=lower,ymax=upper),fill="#B2DF8A") +
+  geom_line(aes(x=YY,y=rate),color='#33A02C') +
+  scale_x_continuous(breaks=seq(1990,2025,5),expand=c(0,0)) +
+  scale_y_continuous(limits=c(0,NA),expand=c(0,0)) +
+  labs(y='Observed severe incidence (1m- 14 years)')+
   theme_minimal()+
   theme(axis.title.x = element_blank())
+
 
 eir_plot <- ggplot(data=history.dfs[['EIR']])+
   geom_ribbon(aes(x=year,ymin=lower,ymax=upper),fill="#FB9A99")+
   geom_line(aes(x=year,y=median),color="#E31A1C")+
   scale_x_continuous(breaks=seq(1990,2025,5),expand=c(0,0))+
-  scale_y_log10(expand=c(0,0))+
+  scale_y_log10(expand=c(0,0)) +
+ # scale_y_log10(
+ #    limits = c(0.000001, 30),
+ #    breaks = c(0.000001, 0.3, 1, 3, 10, 30),
+ #    labels = c("0.01", "0.3", "1", "3", "10", "30"),
+ #    expand = c(0, 0)
+ #  ) +
   labs(y='EIR')+
+  theme_minimal()+
+  theme(axis.title.x = element_blank())
+
+
+beta_plot <- ggplot(data=history.dfs[['betaa']])+
+  geom_ribbon(aes(x=year,ymin=lower*365,ymax=upper*365),fill="#FB9A99")+
+  geom_line(aes(x=year,y=median*365),color="#E31A1C")+
+  scale_x_continuous(breaks=seq(1990,2025,5),expand=c(0,0))+
+  scale_y_continuous(limits=c(0,NA),expand=c(0,0)) +
+  labs(y='betaa')+
   theme_minimal()+
   theme(axis.title.x = element_blank())
 
