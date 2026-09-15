@@ -38,6 +38,7 @@ library(readxl)
 library(janitor)
 library(epitools)
 library(data.table)
+library(dde)
 
 sys.source(here::here("standardise_pr.R"), envir = .GlobalEnv)
 
@@ -80,9 +81,9 @@ kilifi_mbg_pr <- kilifi_mbg_pr %>% #filter(year > 1999) %>%
                            tested = as.integer(tested))
   
 kilifi_trauma_pr <- kilifi_trauma_pr %>% filter(YY > 1999) 
-Kilifi_pr_mbg <- Kilifi_pr_mbg %>% filter(yy > 1999) 
+Kilifi_pr_mbg <- Kilifi_pr_mbg #%>% filter(yy > 1999) 
 
-Kilifi_pr_det_u5 <- Kilifi_pr_det_u5 %>% filter(YY > 1999) 
+Kilifi_pr_det_u5 <- Kilifi_pr_det_u5 #%>% filter(YY > 1999) 
 
 Kilifi_pr_det2 <- Kilifi_pr_det%>%
                     ungroup()%>%
@@ -207,25 +208,25 @@ saveRDS(history.dfs[['clininc_014']],"~/Library/CloudStorage/OneDrive-LSTM/LSTM/
 
 prev_plot <- ggplot(data = history.dfs[["prev_flex"]]) +
   geom_ribbon(aes(x = year, ymin = lower, ymax = upper), fill = "#A6CEE3") +
-  geom_line(aes(x = year, y = median, colour = "anatembea")) +
+  geom_line(aes(x = year, y = median, colour = "model PR")) +
   # geom_point(data = kilifi_trauma_pr, aes(x = YY, y = PR, colour = "IPD 1m-14y")) +
   # geom_point(data = kilifi_trauma_pr,aes(x = YY, y = PR_Smith, colour = "IPD 2-10")) +
   # geom_point(data = final_std2,aes(x = year, y = positive/tested, colour = "std PR")) +
   # geom_errorbar(data = kilifi_trauma_pr,aes(x = YY, ymin = lower, ymax = upper),
   #               width = 0.2, alpha = 0.5,linetype = "dashed",colour = "red") +
-  geom_point(data = Kilifi_pr_mbg, aes(x = yy, y = median, colour = "community MBG")) +
+  geom_point(data = Kilifi_pr_mbg, aes(x = yy, y = median, colour = "observed PR")) +
   geom_errorbar(data = Kilifi_pr_mbg,aes(x = yy,ymin = x95_percent_lci,ymax = x95_percent_uci),
                 width = 0.2,alpha = 0.5,linetype = "dashed") +
   scale_colour_manual(
     name = "",
     values = c(
-      "anatembea" = "#1F78B4",
+      "model PR" = "#1F78B4",
       "IPD 1m-14y" = "purple",
       "IPD 2-10" = "red",
       "std PR" = "orange",
-      "community MBG" = "black")) +
+      "observed PR" = "black")) +
   scale_x_continuous(breaks = seq(1990, 2025, 5),expand = c(0, 0)) +
-  scale_y_continuous(limits = c(0, 0.6),expand = c(0, 0) ) +
+  scale_y_continuous(limits = c(0, 0.7),expand = c(0, 0) ) +
   labs(y = "Prevalence in 2 to 10 years",colour = "Data source") +
   theme_minimal() +
   theme(axis.title.x = element_blank()) +
@@ -245,7 +246,7 @@ prev_plot2 <- ggplot(data = history.dfs[["prev_05"]]) +
       "anatembea" = "purple",
       "IPD 1m-5y" = "black")) +
   scale_x_continuous(breaks = seq(1990, 2025, 5),expand = c(0, 0)) +
-  scale_y_continuous(limits = c(0, 0.5),expand = c(0, 0) ) +
+  scale_y_continuous(limits = c(0, 0.6),expand = c(0, 0) ) +
   labs(y = "Prevalence in 2 to 10 years",colour = "Data source") +
   theme_minimal() +
   theme(axis.title.x = element_blank()) +

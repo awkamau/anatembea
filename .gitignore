@@ -15,3 +15,9 @@ docs
 check-local/
 anatembea_*.tar.gz
 /fitted_eir_testing.r
+data/
+*.rds
+*.rda
+*.xlsx
+*.Rmd
+vignettes/*
