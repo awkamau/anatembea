@@ -27,14 +27,15 @@ export(transform_init)
 export(user_informed)
 importFrom(RecordLinkage,levenshteinSim)
 importFrom(statmod,gauss.quad.prob)
-<<<<<<< HEAD
-importFrom(stats,coef)
-importFrom(stats,dbinom)
-importFrom(stats,dgamma)
-importFrom(stats,dnorm)
-importFrom(stats,median)
-importFrom(stats,rgamma)
-importFrom(stats,rlnorm)
-importFrom(stats,rnorm)
+importFrom(stats,
+  coef,
+  dbinom,
+  dgamma,
+  dnorm,
+  median,
+  rgamma,
+  rlnorm,
+  rnorm
+)
 importFrom(stringi,stri_trans_general)
 importFrom(utils,read.csv)
